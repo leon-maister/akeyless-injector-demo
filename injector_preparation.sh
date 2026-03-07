@@ -53,9 +53,6 @@ fi
 # --- Step 3: Check association between role and auth method ---
 echo "--- Checking role association with auth method ---"
 
-# --- Step 3: Check association between role and auth method ---
-echo "--- Checking role association with auth method ---"
-
 AUTH_METHOD_NAME_NORMALIZED="${AUTH_METHOD_NAME#/}"
 
 if [ "$AUTH_METHOD_OK" = true ] && [ "$ROLE_OK" = true ]; then
@@ -79,11 +76,19 @@ if [ "$AUTH_METHOD_OK" != true ] || [ "$ROLE_OK" != true ] || [ "$ASSOCIATION_OK
     exit 1
 fi
 
-echo "--- Creating Akeyless secret ---"
+echo "--- Checking Akeyless secret ---"
 
-akeyless create-secret \
-  --name "$SECRET_NAME" \
-  --value "$SECRET_VALUE"
+if akeyless get-secret-value --name "$SECRET_NAME" >/dev/null 2>&1; then
+    echo "Secret $SECRET_NAME already exists. Skipping creation."
+else
+    echo "Secret $SECRET_NAME does not exist. Creating it..."
+
+    akeyless create-secret \
+        --name "$SECRET_NAME" \
+        --value "$SECRET_VALUE"
+
+    echo "Secret $SECRET_NAME created successfully"
+fi
 
 echo "Secret created successfully"
 
@@ -92,6 +97,3 @@ echo "Secret created successfully"
 helm repo add akeyless https://akeylesslabs.github.io/helm-charts --force-update
 helm repo update
 
-helm upgrade --install akeyless-injector akeyless/akeyless-injector \
-  --namespace akeyless \
-  --create-namespace
