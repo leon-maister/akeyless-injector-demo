@@ -92,8 +92,39 @@ fi
 
 echo "Secret created successfully!"
 
-# --- Installing Akeyless Injector using Helm ---
+# --- Checking Kubernetes namespace for Akeyless ---
+
+echo "--- Checking Kubernetes namespace 'akeyless' ---"
+
+if kubectl get namespace akeyless >/dev/null 2>&1; then
+    echo "Namespace 'akeyless' already exists. Skipping creation."
+else
+    echo "Namespace 'akeyless' does not exist. Creating it..."
+
+    kubectl create namespace akeyless
+    kubectl label namespace akeyless name=akeyless
+
+    echo "Namespace 'akeyless' created and labeled successfully"
+fi
+
+# --- Preparing Akeyless Injector using Helm ---
 
 helm repo add akeyless https://akeylesslabs.github.io/helm-charts --force-update
 helm repo update
 
+# --- Checking Helm values file ---
+
+echo "--- Checking Helm values file ---"
+
+if [ -f values.yaml ]; then
+    echo "values.yaml already exists. Printing key configuration values:"
+
+    grep -E 'AKEYLESS_URL|AKEYLESS_ACCESS_TYPE|AKEYLESS_ACCESS_ID|AKEYLESS_API_GW_URL|AKEYLESS_K8S_AUTH_CONF_NAME' values.yaml | grep -v '^[[:space:]]*#'
+
+else
+    echo "values.yaml does not exist. Creating it..."
+
+    helm show values akeyless/akeyless-secrets-injection > values.yaml
+
+    echo "values.yaml created successfully"
+fi
