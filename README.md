@@ -105,7 +105,7 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
 
 1. **Clean Up Environment**: Remove any existing demo secrets from Akeyless:
    ```bash
-   akeyless delete-item --name /K8s/Citi_of_M/my_k8s_secret
+   akeyless delete-item --name /Path/To/Json/Secret
    ```
 
 2. **Enable Database Access**: Establish port forwarding to allow the CLI to interact with the database:
@@ -119,7 +119,7 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
 
 4. **Populate Akeyless Secret**: Create a JSON secret in Akeyless containing the newly created credentials:
    ```bash
-   akeyless create-secret --name /K8s/Citi_of_M/my_k8s_secret --value '{"user_name":"demouser","password":"qwertyQWERTY1@"}' --json
+   akeyless create-secret --name /Path/To/Json/Secret --value '{"user_name":"demouser","password":"qwertyQWERTY1@"}' --json
    ```
 
 5. **Apply & Verify**: Deploy the application and check how it parses the JSON secret:
