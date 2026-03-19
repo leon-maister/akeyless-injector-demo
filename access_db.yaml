@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test
+  name: db-injector
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hello-secrets
+      app: hello-db-secrets
   template:
     metadata:
       labels:
-        app: hello-secrets
+        app: hello-db-secrets
       annotations:
         akeyless/enabled: "true"
     spec:
