@@ -9,8 +9,9 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 # --- Variables ---
-SECRET_NAME="/K8s/Citi_of_M/my_k8s_secret"
-SECRET_VALUE="superSecret123!"
+SECRET_NAME="/K8s/InjectorDemo/InjectorSecret"
+SECRET_VALUE="superSecret123@"
+
 
 ROLE_NAME="/FullAccess"
 AUTH_METHOD_NAME="/K8s/k8s-auth-leon-test"
