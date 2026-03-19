@@ -96,6 +96,8 @@ helm repo update
 helm install my-postgres bitnami/postgresql --set auth.postgresPassword=postgrespass --set auth.username=myuser --set auth.password=mypassword --set auth.database=mydb
 ```
 
+> **Note:** The database is deployed with the administrative user **postgresql** and password **postgrespass**.
+
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)
 
