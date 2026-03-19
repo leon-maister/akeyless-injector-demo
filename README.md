@@ -12,7 +12,7 @@ This repository contains scripts and Kubernetes manifests to automate the deploy
 | values.yaml | **Configuration**: Helm chart values for the Akeyless Secrets Injection Webhook. |
 | env.yaml | **Example**: Deployment using Akeyless secrets as environment variables. |
 | access_db.yaml | **Example**: Advanced usage parsing JSON secrets for PostgreSQL authentication. |
-| .gitignore | **Maintenance**: Prevents tracking of logs (`pf.log`) and backup files (`keep-me.yaml`). |
+| .gitignore | **Maintenance**: Prevents tracking of logs (`pf.log`) and backup files. |
 
 ## 🏗️ Setup Scope (injector_preparation.sh)
 The `injector_preparation.sh` script ensures all prerequisites are met before installation:
