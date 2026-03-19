@@ -100,11 +100,37 @@ helm install my-postgres bitnami/postgresql --set auth.postgresPassword=postgres
 > 1. **postgres** (Superuser) with password `postgrespass`.
 > 2. **myuser** (App User) with password `mypassword` and owner rights to the `mydb` database.
 
-#### 🔍 Verify DB Access
-You can verify the database is accessible by connecting to the pod:
-```bash
-kubectl exec -it my-postgres-postgresql-0 -- psql -U postgres
-```
+#### 🧪 Demo Flow (Manual Validation)
+Follow these steps to demonstrate how the Akeyless Injector handles dynamic credentials:
+
+1. **Clean Up Environment**: Remove any existing demo secrets from Akeyless:
+   ```bash
+   akeyless delete-item --name /K8s/Citi_of_M/my_k8s_secret
+   ```
+
+2. **Enable Database Access**: Establish port forwarding to allow the CLI to interact with the database:
+   ```bash
+   kubectl port-forward svc/my-postgres-postgresql 5432:5432 > /dev/null 2>&1 &
+   ```
+
+3. **Verify/Create Demo User**: 
+   - Connect as `myuser` and ensure the `demouser` does not exist (`\du`).
+   - Create the `demouser` with Login and Superuser rights for the demo purposes.
+
+4. **Populate Akeyless Secret**: Create a JSON secret in Akeyless containing the newly created credentials:
+   ```bash
+   akeyless create-secret --name /K8s/Citi_of_M/my_k8s_secret --value '{"user_name":"demouser","password":"qwertyQWERTY1@"}' --json
+   ```
+
+5. **Apply & Verify**: Deploy the application and check how it parses the JSON secret:
+   ```bash
+   kubectl apply -f access_db.yaml
+   ```
+
+6. **Cleanup**: Kill the port-forward process when finished:
+   ```bash
+   pkill -f "kubectl port-forward svc/my-postgres-postgresql"
+   ```
 
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)
