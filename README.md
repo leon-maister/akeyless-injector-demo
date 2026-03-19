@@ -19,19 +19,18 @@ Before starting this demo, you must have a functional **Akeyless Kubernetes Auth
 - **K8s Auth Setup Tool**: [Kubernetes-Authentication](https://github.com/leon-maister/Kubernetes-Authentication)
 
 ## 🏗️ Setup Scope (injector_preparation.sh)
-The `injector_preparation.sh` script ensures all prerequisites are met before installation:
+The `injector_preparation.sh` script ensures all prerequisites are met before installation. **Before running, you must configure the following variables inside the script:**
 
-### 1. Akeyless Validation
-- Checks if the Kubernetes Auth Method (`/K8s/k8s-auth-leon-test`) exists and is correctly typed.
-- Verifies the existence of the `/FullAccess` role and its association with the auth method.
+### 1. Akeyless Configuration Parameters
+- **`AUTH_METHOD_NAME`**: The full path to your Kubernetes Authentication Method.
+- **`ROLE_NAME`**: The Akeyless Role that will be associated with the Auth Method.
+- **`SECRET_NAME`**: The path where the test secret will be checked or created.
+- **`SECRET_VALUE`**: The initial value to be used if the secret does not exist.
 
-### 2. Secret Provisioning
-- Automatically creates a test secret `/K8s/Citi_of_M/my_k8s_secret` if it is missing.
-
-### 3. Kubernetes & Helm Readiness
-- Creates and labels the `akeyless` namespace.
-- Adds the Akeyless Helm repository and updates charts.
-- Generates a default `values.yaml` if one doesn't already exist.
+### 2. Automation Logic
+- **Validation**: Verifies that the Auth Method exists, is of type `k8s`, and is correctly linked to the specified Role.
+- **Secret Provisioning**: Checks for the secret and creates it if it is missing.
+- **Infrastructure**: Prepares the `akeyless` namespace and initializes Helm configurations.
 
 ## 🛠️ Usage Examples
 This project demonstrates two primary ways to consume secrets:
@@ -40,29 +39,25 @@ This project demonstrates two primary ways to consume secrets:
 - Secrets are injected directly into container environment variables using the `akeyless/enabled: "true"` annotation.
 
 ### 2. Dynamic DB Credentials (`access_db.yaml`)
-- Injects a JSON secret containing database credentials.
-- Uses a sidecar approach with `jq` to parse credentials and connect to a PostgreSQL instance.
+- Injects a JSON secret containing database credentials and uses `jq` for runtime parsing.
 
 ## ⚙️ Configuration Variables
 Key settings defined in `values.yaml`:
-- **Access ID**: `p-5dlug8q55fc1km`
-- **Gateway URL**: `https://gw-gke.lm.cs.akeyless.fans/api/v1`
-- **Auth Config Name**: `k8s-config-created-by-script`
+- **Access ID**: Your Akeyless Access ID.
+- **Gateway URL**: Your Akeyless Gateway API URL.
+- **Auth Config Name**: The name of the K8s Auth configuration.
 
 ## 🚀 Quick Start
 1. Ensure you are logged into Akeyless CLI and have kubectl access.
-2. Run the preparation script:
+2. Open `injector_preparation.sh` and set your specific variables.
+3. Run the preparation script:
 ```bash
 chmod +x injector_preparation.sh
 ./injector_preparation.sh
 ```
-3. Install the injector using Helm:
+4. Install the injector using Helm:
 ```bash
 helm install akeyless-secrets-injection akeyless/akeyless-secrets-injection -f values.yaml -n akeyless
-```
-4. Deploy an example:
-```bash
-kubectl apply -f env.yaml
 ```
 
 ---
