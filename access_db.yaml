@@ -39,4 +39,4 @@ spec:
 
         env:
         - name: DB_ACCESS
-          value: akeyless:/K8s/Citi_of_M/my_k8s_secret
+          value: akeyless:/K8s/InjectorDemo/DB-Secret

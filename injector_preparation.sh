@@ -139,4 +139,4 @@ fi
 
 
 
-#git add . && git commit -m "Update injector script with colored output" && git push
+#git add . && git commit -m "Update path to the secret" && git push
