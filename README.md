@@ -71,7 +71,11 @@ kubectl get all -n akeyless
 This project demonstrates two primary ways to consume secrets:
 
 ### 1. Secret Injection (basic scenario)
-- Secrets are injected directly into container environment variables using the `akeyless/enabled: "true"` annotation.
+- Ensure that in the `env.yaml` file, the parameter `value:` points to a secret variable that actually exists in your Akeyless Vault.
+- Once verified, deploy the example using:
+```bash
+kubectl apply -f env.yaml
+```
 
 ### 2. Dynamic DB Credentials (`access_db.yaml`)
 - Injects a JSON secret containing database credentials and uses `jq` for runtime parsing.
