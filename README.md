@@ -47,6 +47,10 @@ The script performs a systematic validation and setup of the environment:
 6. **Values File Management**: Checks for an existing `values.yaml`; if missing, it **generates a fresh one** directly from the Akeyless Helm chart. If it exists, it displays key configuration parameters to ensure consistency.
 
 ## 🚀 Module Injector Configuration and Start UP
+This phase focuses on applying the verified configuration to the Kubernetes cluster:
+1. **Final Validation**: Review the parameters displayed by the preparation script to ensure the **Access ID** and **Gateway URL** match your environment.
+2. **Values.yaml Adjustment**: If necessary, manually update `values.yaml` with any specific requirements (e.g., custom sidecar settings).
+3. **Deployment**: Run the Helm installation command to deploy the Akeyless Mutation Webhook into the `akeyless` namespace.
 
 ## 🛠️ Usage Examples
 This project demonstrates two primary ways to consume secrets:
