@@ -76,15 +76,6 @@ This project demonstrates two primary ways to consume secrets:
 ### 2. Dynamic DB Credentials (`access_db.yaml`)
 - Injects a JSON secret containing database credentials and uses `jq` for runtime parsing.
 
-## 🚀 Quick Start
-1. Ensure you are logged into Akeyless CLI and have kubectl access.
-2. Open `injector_preparation.sh` and set your specific variables.
-3. Run the preparation script (as shown in Run Preparation section).
-4. Install the injector using Helm:
-```bash
-helm install akeyless-secrets-injection akeyless/akeyless-secrets-injection -f values.yaml -n akeyless
-```
-
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)
 
