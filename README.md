@@ -38,26 +38,11 @@ chmod +x injector_preparation.sh
 ```
 
 ### 🖥️ Execution Output
-```text
---- Checking Akeyless authentication method ---
-Auth method /K8s/k8s-auth-leon-test exists.
-Auth method /K8s/k8s-auth-leon-test is of type Kubernetes.
-
---- Checking role existence ---
-Role /FullAccess exists.
-
---- Checking role association with auth method ---
-Role /FullAccess is associated with auth method /K8s/k8s-auth-leon-test.
-
---- Checking Akeyless secret ---
-Secret /K8s/InjectorDemo/InjectorSecret does not exist. Creating it...
-A new secret named /K8s/InjectorDemo/InjectorSecret was successfully created
-Secret /K8s/InjectorDemo/InjectorSecret created successfully.
-Secret check completed successfully.
-
---- Checking Kubernetes namespace 'akeyless' ---
-Namespace 'akeyless' already exists. Skipping creation.
-```
+The script performs a systematic validation of the environment:
+1. **Auth Method Verification**: Checks if the specified Kubernetes Auth Method exists and confirms its type.
+2. **Role & Association**: Ensures the required Role exists and is correctly linked to the Auth Method.
+3. **Secret Management**: Checks for the target secret; if it's missing, the script **automatically creates it** with the predefined value.
+4. **Namespace Setup**: Validates the existence of the `akeyless` namespace in Kubernetes, creating it if necessary.
 
 ## 🛠️ Usage Examples
 This project demonstrates two primary ways to consume secrets:
