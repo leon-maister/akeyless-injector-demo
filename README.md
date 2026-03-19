@@ -44,6 +44,7 @@ The script performs a systematic validation and setup of the environment:
 3. **Secret Management**: Checks for the target secret; if it's missing, the script **automatically creates it** with the predefined value.
 4. **Namespace Setup**: Validates the existence of the `akeyless` namespace in Kubernetes, creating it if necessary.
 5. **Helm Repository Preparation**: Automatically adds the official Akeyless Helm repository and performs an update to ensure the latest chart versions are available.
+6. **Values File Management**: Checks for an existing `values.yaml`; if missing, it **generates a fresh one** directly from the Akeyless Helm chart. If it exists, it displays key configuration parameters to ensure consistency.
 
 ## 🛠️ Usage Examples
 This project demonstrates two primary ways to consume secrets:
