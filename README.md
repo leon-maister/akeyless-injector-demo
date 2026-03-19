@@ -114,8 +114,22 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
    ```
 
 3. **Verify/Create Demo User**: 
-   - Connect as `myuser` and ensure the `demouser` does not exist (`\du`).
-   - Create the `demouser` with Login and Superuser rights for the demo purposes.
+   - **Show that the demouser does not exist**:
+     ```bash
+     PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "\du"
+     ```
+   - **In case it exists - remove the demouser**:
+     ```bash
+     PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "DROP ROLE demouser;"
+     ```
+   - **Confirm the user is removed**:
+     ```bash
+     PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "\du"
+     ```
+   - **Create the demouser** with Login and Superuser rights for the demo purposes:
+     ```bash
+     PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "CREATE ROLE demouser WITH LOGIN SUPERUSER PASSWORD 'qwertyQWERTY1@';"
+     ```
 
 4. **Populate Akeyless Secret**: Create a JSON secret in Akeyless containing the newly created credentials:
    ```bash
