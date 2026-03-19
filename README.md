@@ -76,6 +76,10 @@ This project demonstrates two primary ways to consume secrets:
 ```bash
 kubectl apply -f env.yaml
 ```
+- Check the logs to verify secret injection:
+```bash
+kubectl logs -l app=hello-secrets
+```
 
 ### 2. Dynamic DB Credentials (`access_db.yaml`)
 - Injects a JSON secret containing database credentials and uses `jq` for runtime parsing.
