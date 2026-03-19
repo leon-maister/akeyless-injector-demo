@@ -125,6 +125,8 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
    > **Note:** Ensure the secret value is provided in **JSON format** as shown above.
 
 5. **Apply & Verify Connection**: 
+   > **Logic:** The Injector places the access parameters into memory, and the application takes these parameters, connects to the database, and runs the `\du` command.
+
    - Ensure that in the `access_db.yaml` file, the parameter `value:` points correctly to `akeyless:/Path/To/Json/Secret` and the annotation is `akeyless/enabled: "true"`.
    - Deploy (or force-replace) the application:
      ```bash
@@ -138,6 +140,7 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
 6. **Cleanup**: Kill the port-forward process when finished:
    ```bash
    pkill -f "kubectl port-forward svc/my-postgres-postgresql"
+   ```
 
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)
