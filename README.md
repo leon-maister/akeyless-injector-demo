@@ -46,6 +46,8 @@ The script performs a systematic validation and setup of the environment:
 5. **Helm Repository Preparation**: Automatically adds the official Akeyless Helm repository and performs an update to ensure the latest chart versions are available.
 6. **Values File Management**: Checks for an existing `values.yaml`; if missing, it **generates a fresh one** directly from the Akeyless Helm chart. If it exists, it displays key configuration parameters to ensure consistency.
 
+## 🚀 Module Injector Configuration and Start UP
+
 ## 🛠️ Usage Examples
 This project demonstrates two primary ways to consume secrets:
 
