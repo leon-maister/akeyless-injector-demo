@@ -55,6 +55,12 @@ Before deploying, you must ensure the following parameters are correctly configu
 - **`AKEYLESS_API_GW_URL`**: The API URL of your Akeyless Gateway.
 - **`AKEYLESS_K8S_AUTH_CONF_NAME`**: The specific name of the Kubernetes Authentication configuration created in your Gateway.
 
+### 🚀 Deployment
+Once the configuration is verified, install the injector using the following command:
+```bash
+helm install injector akeyless/akeyless-secrets-injection --namespace akeyless -f values.yaml
+```
+
 ## 🛠️ Usage Examples
 This project demonstrates two primary ways to consume secrets:
 
