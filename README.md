@@ -81,7 +81,7 @@ kubectl apply -f env.yaml
 kubectl logs -l app=hello-secrets
 ```
 
-### 2. Dynamic DB Credentials (`access_db.yaml`)
+### 2. Inject DB secret (complicated scenario)
 - Injects a JSON secret containing database credentials and uses `jq` for runtime parsing.
 
 ---
