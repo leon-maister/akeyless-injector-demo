@@ -43,7 +43,7 @@ The script performs a systematic validation and setup of the environment:
 2. **Role & Association**: Ensures the required Role exists and is correctly linked to the Auth Method.
 3. **Secret Management**: Checks for the target secret; if it's missing, the script **automatically creates it** with the predefined value.
 4. **Namespace Setup**: Validates the existence of the `akeyless` namespace in Kubernetes, creating it if necessary.
-5. **Helm Repository Preparation**: Automatically adds the official Akeyless Helm repository and performs an update to ensure the latest chart versions are available.
+5. **Helm Repository Preparation**: Automatically adds the official Akeyless Helm repository and performs an update to ensure the latest chart versions available.
 6. **Values File Management**: Checks for an existing `values.yaml`; if missing, it **generates a fresh one** directly from the Akeyless Helm chart. If it exists, it displays key configuration parameters to ensure consistency.
 
 ## 🚀 Module Injector Configuration and Start UP
@@ -93,7 +93,7 @@ helm repo update
 
 **Install PostgreSQL:**
 ```bash
-helm install my-postgres bitnami/postgresql --namespace from-scratch --create-namespace --set auth.postgresPassword=postgrespass --set auth.username=myuser --set auth.password=mypassword --set auth.database=mydb
+helm install my-postgres bitnami/postgresql --set auth.postgresPassword=postgrespass --set auth.username=myuser --set auth.password=mypassword --set auth.database=mydb
 ```
 
 - Injects a JSON secret containing database credentials and uses `jq` for runtime parsing.
