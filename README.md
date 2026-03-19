@@ -48,6 +48,12 @@ The script performs a systematic validation and setup of the environment:
 
 ## 🚀 Module Injector Configuration and Start UP
 ## ⚙️ Configuration
+Before deploying, you must ensure the following parameters are correctly configured in your `values.yaml` file:
+- **`AKEYLESS_URL`**: The URL of your Akeyless Vault instance.
+- **`AKEYLESS_ACCESS_TYPE`**: The authentication type (e.g., k8s).
+- **`AKEYLESS_ACCESS_ID`**: Your unique Access ID for the Kubernetes Auth Method.
+- **`AKEYLESS_API_GW_URL`**: The API URL of your Akeyless Gateway.
+- **`AKEYLESS_K8S_AUTH_CONF_NAME`**: The specific name of the Kubernetes Authentication configuration created in your Gateway.
 
 ## 🛠️ Usage Examples
 This project demonstrates two primary ways to consume secrets:
