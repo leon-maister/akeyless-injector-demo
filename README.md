@@ -121,6 +121,7 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
    ```bash
    akeyless create-secret --name /Path/To/Json/Secret --value '{"user_name":"demouser","password":"qwertyQWERTY1@"}' --json
    ```
+   > **Note:** Ensure the secret value is provided in **JSON format** as shown above.
 
 5. **Apply & Verify**: Deploy the application and check how it parses the JSON secret:
    ```bash
