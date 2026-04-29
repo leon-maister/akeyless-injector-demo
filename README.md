@@ -67,11 +67,16 @@ kubectl get all -n akeyless
 ## 🛠️ Usage Examples
 
 ### 1. Secret Injection (Basic Scenario)
-Ensure that in the `env.yaml` file, the parameter `value:` points to an existing secret. Deploy using `akeyless/enabled: "true"` annotation.
+Ensure that in the `env.yaml` file, the parameter `value:` points to an existing secret.
 
-**Deploy:**
+**Initial Deploy:**
 ```bash
 kubectl apply -f env.yaml
+```
+
+**Force Redeploy (Trigger Webhook again):**
+```bash
+kubectl replace --force -f env.yaml
 ```
 
 **Verify Logs:**
@@ -90,10 +95,6 @@ helm repo update
 helm install my-postgres bitnami/postgresql --set auth.postgresPassword=postgrespass --set auth.username=myuser --set auth.password=mypassword --set auth.database=mydb
 ```
 
-> **Note:** This command creates two users:
-> 1. **postgres** (Superuser) with password `postgrespass`.
-> 2. **myuser** (App User) with password `mypassword` and owner rights to the `mydb` database.
-
 #### 🧪 Demo Flow (Manual Validation)
 Follow these steps to demonstrate how the Akeyless Injector handles dynamic credentials:
 
@@ -102,7 +103,7 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
    akeyless delete-item --name /Path/To/Json/Secret
    ```
 
-2. **Enable Database Access**: Establish port forwarding to allow the CLI to interact with the database:
+2. **Enable Database Access**:
    ```bash
    kubectl port-forward svc/my-postgres-postgresql 5432:5432 > /dev/null 2>&1 &
    ```
@@ -112,39 +113,28 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
      ```bash
      PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "\du"
      ```
-   - **In case it exists - remove the demouser**:
-     ```bash
-     PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "DROP ROLE demouser;"
-     ```
-   - **Confirm the user is removed**:
-     ```bash
-     PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "\du"
-     ```
-   - **Create the demouser** with Login and Superuser rights for the demo purposes:
+   - **Create the demouser**:
      ```bash
      PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "CREATE ROLE demouser WITH LOGIN SUPERUSER PASSWORD 'qwertyQWERTY1@';"
      ```
 
-4. **Populate Akeyless Secret**: Create a JSON secret in Akeyless containing the newly created credentials:
+4. **Populate Akeyless Secret**:
    ```bash
    akeyless create-secret --name /Path/To/Json/Secret --value '{"user_name":"demouser","password":"qwertyQWERTY1@"}' --json
    ```
-   > **Note:** Ensure the secret value is provided in **JSON format** as shown above.
 
 5. **Apply & Verify Connection**:
-   > **Logic:** The Injector places the access parameters into memory, and the application takes these parameters, connects to the database, and runs the `\du` command.
-
-   - Ensure that in the `access_db.yaml` file, the parameter `value:` points correctly to `akeyless:/Path/To/Json/Secret` and the annotation is `akeyless/enabled: "true"`.
-   - Deploy (or force-replace) the application:
+   - Ensure `access_db.yaml` points correctly to `akeyless:/Path/To/Json/Secret`.
+   - **Deploy (or force-replace) the application:**
      ```bash
      kubectl replace --force -f access_db.yaml
      ```
-   - Check the logs to see the end-to-end flow (parsing JSON and successful DB connection):
+   - **Check the logs:**
      ```bash
      kubectl logs -l app=hello-db-secrets
      ```
 
-6. **Cleanup**: Kill the port-forward process when finished:
+6. **Cleanup**:
    ```bash
    pkill -f "kubectl port-forward svc/my-postgres-postgresql"
    ```
