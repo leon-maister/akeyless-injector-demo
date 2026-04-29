@@ -66,18 +66,20 @@ kubectl get all -n akeyless
 
 ## 🛠️ Usage Examples
 
-### 1. Secret Injection (basic scenario)
-- Ensure that in the `env.yaml` file, the parameter `value:` points to an existing secret.
-- Deploy using `akeyless/enabled: "true"` annotation.
+### 1. Secret Injection (Basic Scenario)
+Ensure that in the `env.yaml` file, the parameter `value:` points to an existing secret. Deploy using `akeyless/enabled: "true"` annotation.
+
+**Deploy:**
 ```bash
 kubectl apply -f env.yaml
 ```
-- Check the logs to verify secret injection:
+
+**Verify Logs:**
 ```bash
 kubectl logs -l app=hello-secrets
 ```
 
-### 2. Inject DB secret (complicated scenario)
+### 2. Inject DB secret (Complicated Scenario)
 #### 🏗️ Preparation
 Before deploying the secret consumption example, prepare the database environment:
 
@@ -88,7 +90,7 @@ helm repo update
 helm install my-postgres bitnami/postgresql --set auth.postgresPassword=postgrespass --set auth.username=myuser --set auth.password=mypassword --set auth.database=mydb
 ```
 
-> **Note:** This command creates two users: 
+> **Note:** This command creates two users:
 > 1. **postgres** (Superuser) with password `postgrespass`.
 > 2. **myuser** (App User) with password `mypassword` and owner rights to the `mydb` database.
 
@@ -105,7 +107,7 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
    kubectl port-forward svc/my-postgres-postgresql 5432:5432 > /dev/null 2>&1 &
    ```
 
-3. **Verify/Create Demo User**: 
+3. **Verify/Create Demo User**:
    - **Show that the demouser does not exist**:
      ```bash
      PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "\du"
@@ -129,7 +131,7 @@ Follow these steps to demonstrate how the Akeyless Injector handles dynamic cred
    ```
    > **Note:** Ensure the secret value is provided in **JSON format** as shown above.
 
-5. **Apply & Verify Connection**: 
+5. **Apply & Verify Connection**:
    > **Logic:** The Injector places the access parameters into memory, and the application takes these parameters, connects to the database, and runs the `\du` command.
 
    - Ensure that in the `access_db.yaml` file, the parameter `value:` points correctly to `akeyless:/Path/To/Json/Secret` and the annotation is `akeyless/enabled: "true"`.
