@@ -11,6 +11,7 @@ This repository contains scripts and Kubernetes manifests to automate the deploy
 | injector_preparation.sh | **Setup**: Validates Akeyless Auth/Roles, creates test secrets, and prepares Helm values. |
 | values.yaml | **Configuration**: Helm chart values for the Akeyless Secrets Injection Webhook. |
 | env.yaml | **Example**: Deployment using Akeyless secrets as environment variables. |
+| push_s3.yaml | **Example**: Uploads a verification file with a GMT timestamp directly to AWS S3. |
 | access_db.yaml | **Example**: Advanced usage parsing JSON secrets for PostgreSQL authentication and connection testing. |
 | .gitignore | **Maintenance**: Prevents tracking of local logs (`pf.log`) and backup files. |
 
@@ -84,7 +85,28 @@ kubectl replace --force -f env.yaml
 kubectl logs -l app=hello-secrets
 ```
 
-### 2. Inject DB secret (Complicated Scenario)
+### 2. Inject AWS Secret & Write to S3 (Combo Scenario)
+This scenario combines cloud deployment logic with transparent K8s injection to upload a text file containing a GMT timestamp.
+
+**Initial Deploy:**
+```bash
+kubectl apply -f push_s3.yaml
+```
+
+**Force Redeploy (Trigger Webhook again):**
+```bash
+kubectl replace --force -f push_s3.yaml
+```
+
+**Verify Logs:**
+```bash
+kubectl logs -l app=s3-timestamp-writer --tail=50
+```
+
+**Verify AWS S3 Bucket Artifact:**
+Log in to your AWS Management Console, navigate to the **Amazon S3** service, and locate your configured bucket (`leon-injector-plugin-demo-bucket`) to verify the successful creation and persistence of the `demo-timestamp.txt` file.
+
+### 3. Inject DB secret (Complicated Scenario)
 #### 🏗️ Preparation
 Before deploying the secret consumption example, prepare the database environment:
 
