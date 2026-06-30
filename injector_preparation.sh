@@ -13,8 +13,8 @@ SECRET_NAME="/K8s/InjectorDemo/InjectorSecret"
 SECRET_VALUE="superSecret123@"
 
 
-ROLE_NAME="/FullAccess"
-AUTH_METHOD_NAME="/K8s/k8s-auth-leon-test"
+ROLE_NAME="/K8sAccess"
+AUTH_METHOD_NAME="/K8s/k8s-auth"
 
 # --- Checking Akeyless authentication method and role configuration ---
 
@@ -64,7 +64,6 @@ AUTH_METHOD_NAME_NORMALIZED="${AUTH_METHOD_NAME#/}"
 if [ "$AUTH_METHOD_OK" = true ] && [ "$ROLE_OK" = true ]; then
     if echo "$ROLE_JSON" | jq -e --arg AUTH "$AUTH_METHOD_NAME_NORMALIZED" \
         'any(.role_auth_methods_assoc[]; .auth_method_name == $AUTH)' >/dev/null; then
-
         printf "${GREEN}Role %s is associated with auth method %s.${NC}\n" "$ROLE_NAME" "$AUTH_METHOD_NAME"
         ASSOCIATION_OK=true
 

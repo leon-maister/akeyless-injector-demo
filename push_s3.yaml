@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: s3-timestamp-injector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: s3-timestamp-writer
+  template:
+    metadata:
+      labels:
+        app: s3-timestamp-writer
+      annotations:
+        # Enable Akeyless Secrets Injection for this pod
+        akeyless/enabled: "true"
+    spec:
+      containers:
+      - name: aws-cli
+        image: amazon/aws-cli:2.15.15
+        command:
+        - sh
+        - -c
+        - |
+          # Install jq to parse the JSON secret payload (amazon/aws-cli uses yum)
+          echo "Installing jq..."
+          yum install -y jq > /dev/null 2>&1
+
+          echo "Parsing AWS credentials from Akeyless Injected Secret..."
+          
+          # Extract access keys from the JSON string provided by the Akeyless webhook
+          AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS_JSON | jq -r '.username')
+          AWS_SECRET_ACCESS_KEY=$(echo $AWS_CREDS_JSON | jq -r '.password')
+
+          if [ -z "$AWS_ACCESS_KEY_ID" ] || [ "$AWS_ACCESS_KEY_ID" = "null" ]; then
+            echo "ERROR: Failed to extract AWS_ACCESS_KEY_ID from secret."
+            exit 1
+          fi
+
+          # Export standard AWS environment variables for the AWS CLI
+          export AWS_ACCESS_KEY_ID
+          export AWS_SECRET_ACCESS_KEY
+          export AWS_DEFAULT_REGION="us-east-2"
+
+          # Generate the local verification file with a GMT timestamp
+          CURRENT_TIME=$(date -u +"%Y-%m-%d %H:%M:%S")
+          FILE_NAME="demo-timestamp.txt"
+          
+          echo "Deployment verified successfully via Kubernetes Injection and Akeyless!" > $FILE_NAME
+          echo "GMT Timestamp: $CURRENT_TIME" >> $FILE_NAME
+          
+          echo "Generated local file '$FILE_NAME' with timestamp: GMT $CURRENT_TIME"
+
+          # Verify if the target S3 bucket exists, create it if missing
+          echo "Checking S3 bucket '$S3_BUCKET_NAME'..."
+          if aws s3api head-bucket --bucket "$S3_BUCKET_NAME" 2>/dev/null; then
+              echo "Bucket '$S3_BUCKET_NAME' already exists."
+          else
+              echo "Bucket '$S3_BUCKET_NAME' does not exist. Attempting to create it..."
+              aws s3api create-bucket --bucket "$S3_BUCKET_NAME" --region "$AWS_DEFAULT_REGION" --create-bucket-configuration LocationConstraint="$AWS_DEFAULT_REGION"
+          fi
+
+          # Upload the generated artifact to the AWS S3 Bucket
+          echo "Uploading '$FILE_NAME' to S3..."
+          aws s3 cp $FILE_NAME s3://$S3_BUCKET_NAME/$FILE_NAME
+
+          echo "Success! The timestamp file has been uploaded via Injector workflow."
+          
+          # Keep the container alive for logs inspection
+          echo "Going to sleep..."
+          sleep 10000
+        env:
+        # Define which secret to fetch from Akeyless and the target environment variable
+        - name: AWS_CREDS_JSON
+          value: akeyless:/Demo/GitHubPlugin-AWS-Integration/AWS-creds
+        # Define the target S3 bucket name
+        - name: S3_BUCKET_NAME
+          value: "leon-injector-plugin-demo-bucket"
