@@ -103,6 +103,9 @@ kubectl replace --force -f push_s3.yaml
 kubectl logs -l app=s3-timestamp-writer --tail=50
 ```
 
+**Verify AWS S3 Bucket Artifact:**
+Log in to your AWS Management Console, navigate to the **Amazon S3** service, and locate your configured bucket (`leon-injector-plugin-demo-bucket`) to verify the successful creation and persistence of the `demo-timestamp.txt` file.
+
 ### 3. Inject DB secret (Complicated Scenario)
 #### 🏗️ Preparation
 Before deploying the secret consumption example, prepare the database environment:
