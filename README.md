@@ -1,167 +1,80 @@
-# Akeyless Secrets Injection Automation
+# Kubernetes Authentication Automation (Akeyless)
 
-This repository contains scripts and Kubernetes manifests to automate the deployment of the Akeyless Secrets Injection Webhook and demonstrate secret consumption.
+This repository contains scripts to automate the trust establishment between a Kubernetes cluster and Akeyless Gateway.
 
 ### 🎯 Project Goal
-**The primary goal of this project is to automate the preparation of Akeyless resources and the installation of the Mutation Webhook for transparent secret injection into Kubernetes pods.**
+**The primary goal of this project is to automate the creation and configuration of an Akeyless Kubernetes Authentication Method.**
 
 ## 📂 Core Components
 | File | Function |
 | :--- | :--- |
-| injector_preparation.sh | **Setup**: Validates Akeyless Auth/Roles, creates test secrets, and prepares Helm values. |
-| values.yaml | **Configuration**: Helm chart values for the Akeyless Secrets Injection Webhook. |
-| env.yaml | **Example**: Deployment using Akeyless secrets as environment variables. |
-| push_s3.yaml | **Example**: Uploads a verification file with a GMT timestamp directly to AWS S3. |
-| access_db.yaml | **Example**: Advanced usage parsing JSON secrets for PostgreSQL authentication and connection testing. |
-| .gitignore | **Maintenance**: Prevents tracking of local logs (`pf.log`) and backup files. |
+| config.sh | **Configuration**: Centralized shared variables for environment, Akeyless, and logging parameters. |
+| k8s_auth_creation.sh | **Setup**: Creates K8s namespace, ServiceAccount, and configures Akeyless Auth Method + Gateway Config. |
+| clean_up.sh | **Cleanup**: Removes all K8s and Akeyless resources created by the setup script. |
 
-## 🛠️ Prerequisites
-Before starting this demo, you must have a functional **Akeyless Kubernetes Auth Method** configured in your Gateway. If you haven't set this up yet, you can use this automation tool:
-- **K8s Auth Setup Tool**: [Kubernetes-Authentication](https://github.com/leon-maister/Kubernetes-Authentication)
+## 🏗️ Setup Scope (k8s_auth_creation.sh)
+The `k8s_auth_creation.sh` script automates the entire integration process using values defined in `config.sh`:
 
-## 🏗️ Module Environment Preparation
-The purpose of this module is to handle all necessary preparations and resource validations required to successfully run and deploy the Akeyless Injector.
+### 1. Environment Validation
+- Validates the `AKEYLESS_GATEWAY_URL` environment variable.
+- Detects the active Kubernetes context, Host, and Issuer URL.
 
-## ⚙️ Configuration
-Before running the setup or building images, you must configure the following parameters:
+### 2. Kubernetes Resource Provisioning
+- **Namespace**: Creates a dedicated namespace for testing.
+- **ServiceAccount**: Provisions a `gateway-token-reviewer` account.
+- **RBAC**: Configures `system:auth-delegator` permissions via ClusterRoleBinding.
+- **JWT Token**: Generates a long-lived Secret-based token for Akeyless to communicate with K8s.
 
-### Akeyless Script Parameters (`injector_preparation.sh`)
-- **`AUTH_METHOD_NAME`**: The full path to your Kubernetes Authentication Method.
-- **`ROLE_NAME`**: The Akeyless Role that will be associated with the Auth Method.
-- **`SECRET_NAME`**: The path where the test secret will be checked or created.
-- **`SECRET_VALUE`**: The initial value to be used if the secret does not exist.
+### 3. Akeyless Configuration
+- **Auth Method**: Creates a new Kubernetes Authentication Method and generates an Access ID/Private Key.
+- **Role Association**: Links the new Auth Method to a specified Akeyless Role (e.g., K8sAccess).
+- **Gateway Config**: Configures the Akeyless Gateway with the cluster's CA Cert, Host, Issuer, and Token Reviewer JWT.
 
-## 🚀 Run Preparation
-Once configured, execute the preparation script:
+## 🧹 Cleanup Scope (clean_up.sh)
+The `clean_up.sh` script performs a full teardown of the following resources using values defined in `config.sh`:
+
+### 1. Akeyless Resources
+- **Gateway K8s Auth Config**: Removes the configuration from the Gateway.
+- **Auth Method**: Deletes the Kubernetes-type authentication method.
+
+### 2. Kubernetes Resources
+- **ServiceAccount & Secret**: Removes the dedicated Token Reviewer account and its JWT token.
+- **ClusterRoleBinding**: Deletes the `auth-delegator` permission binding.
+- **Namespace**: Deletes the entire template namespace.
+
+### 3. Local Files
+- **Manifests**: Deletes temporary ".yaml" files.
+- **Logs**: Removes the setup log file.
+
+## ⚙️ Configuration Variables
+All template variables are managed centrally inside `config.sh`:
+
+### Kubernetes Settings
+- **TEST_NS**: `your-namespace`
+- **SA_NAME**: `your-service-account-name`
+- **SA_FILE/TOKEN_FILE**: Manifests for SA and Secret creation
+
+### Akeyless Settings
+- **AUTH_METHOD_NAME**: `/your-path/your-auth-method`
+- **GW_CONFIG_NAME**: `your-gw-config-name`
+- **GW_URL**: `https://your-akeyless-gateway-url/api/v1`
+
+## 🚀 Usage
+1. Configure your environment variables in `config.sh`:
 ```bash
-chmod +x injector_preparation.sh
-./injector_preparation.sh
+nano config.sh
 ```
-
-### 🖥️ Execution Output
-The script performs a systematic validation and setup of the environment:
-1. **Auth Method Verification**: Checks if the specified Kubernetes Auth Method exists.
-2. **Role & Association**: Ensures the required Role exists and is correctly linked.
-3. **Secret Management**: Checks for the target secret; if it's missing, the script **automatically creates it**.
-4. **Namespace Setup**: Validates/creates the `akeyless` namespace.
-5. **Helm Repository Preparation**: Adds the official Akeyless Helm repository and updates.
-6. **Values File Management**: Generates/validates `values.yaml` consistency.
-
-## 🚀 Module Injector Configuration and Start UP
-### 🚀 Deployment
-Once the configuration is verified, install the injector using the following command:
+2. Export your gateway URL:
 ```bash
-helm install injector akeyless/akeyless-secrets-injection --namespace akeyless -f values.yaml
+export AKEYLESS_GATEWAY_URL="https://your-akeyless-gateway-url/api/v1"
 ```
-
-### 🔍 Verify Installation
-After deployment, ensure the Injector is up and running:
+3. Install or upgrade the Injector:
 ```bash
-kubectl get all -n akeyless
+helm upgrade --install injector akeyless/akeyless-secrets-injection --namespace akeyless -f /home/keyless/vcluster/injector-demo/values.yaml
 ```
-
-## 🛠️ How the Secret Injection Works
-1. **Mutation**: When you apply a YAML with the `akeyless/enabled: "true"` annotation, the Akeyless Webhook intercepts the request.
-2. **Sidecar & Init**: The webhook automatically injects an **init-container** and a **sidecar container** into your pod.
-3. **Transparent Injection**: The infrastructure handles authentication and secret fetching, providing them as standard environment variables. The application doesn't need Akeyless SDKs — it just reads the environment.
-
-## 🛠️ Usage Examples
-
-### 1. Secret Injection (Basic Scenario)
-Ensure that in the `env.yaml` file, the parameter `value:` points to an existing secret.
-
-**Initial Deploy:**
-```bash
-kubectl apply -f env.yaml
-```
-
-**Force Redeploy (Trigger Webhook again):**
-```bash
-kubectl replace --force -f env.yaml
-```
-
-**Verify Logs:**
-```bash
-kubectl logs -l app=hello-secrets
-```
-
-### 2. Inject AWS Secret & Write to S3 (Combo Scenario)
-This scenario combines cloud deployment logic with transparent K8s injection to upload a text file containing a GMT timestamp.
-
-**Initial Deploy:**
-```bash
-kubectl apply -f push_s3.yaml
-```
-
-**Force Redeploy (Trigger Webhook again):**
-```bash
-kubectl replace --force -f push_s3.yaml
-```
-
-**Verify Logs:**
-```bash
-kubectl logs -l app=s3-timestamp-writer --tail=50
-```
-
-**Verify AWS S3 Bucket Artifact:**
-Log in to your AWS Management Console, navigate to the **Amazon S3** service, and locate your configured bucket (`leon-injector-plugin-demo-bucket`) to verify the successful creation and persistence of the `demo-timestamp.txt` file.
-
-### 3. Inject DB secret (Complicated Scenario)
-#### 🏗️ Preparation
-Before deploying the secret consumption example, prepare the database environment:
-
-**Add Helm Repository & Install PostgreSQL:**
-```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo update
-helm install my-postgres bitnami/postgresql --set auth.postgresPassword=postgrespass --set auth.username=myuser --set auth.password=mypassword --set auth.database=mydb
-```
-
-#### 🧪 Demo Flow (Manual Validation)
-Follow these steps to demonstrate how the Akeyless Injector handles dynamic credentials:
-
-1. **Clean Up Environment**: Remove any existing demo secrets from Akeyless:
-   ```bash
-   akeyless delete-item --name /Path/To/Json/Secret
-   ```
-
-2. **Enable Database Access**:
-   ```bash
-   kubectl port-forward svc/my-postgres-postgresql 5432:5432 > /dev/null 2>&1 &
-   ```
-
-3. **Verify/Create Demo User**:
-   - **Show that the demouser does not exist**:
-     ```bash
-     PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "\du"
-     ```
-   - **Create the demouser**:
-     ```bash
-     PGPASSWORD='mypassword' psql -h localhost -U myuser -d mydb -c "CREATE ROLE demouser WITH LOGIN SUPERUSER PASSWORD 'qwertyQWERTY1@';"
-     ```
-
-4. **Populate Akeyless Secret**:
-   ```bash
-   akeyless create-secret --name /Path/To/Json/Secret --value '{"user_name":"demouser","password":"qwertyQWERTY1@"}' --json
-   ```
-
-5. **Apply & Verify Connection**:
-   - Ensure `access_db.yaml` points correctly to `akeyless:/Path/To/Json/Secret`.
-   - **Deploy (or force-replace) the application:**
-     ```bash
-     kubectl replace --force -f access_db.yaml
-     ```
-   - **Check the logs:**
-     ```bash
-     kubectl logs -l app=hello-db-secrets
-     ```
-
-6. **Cleanup**:
-   ```bash
-   pkill -f "kubectl port-forward svc/my-postgres-postgresql"
-   ```
+4. Run `./k8s_auth_creation.sh` to setup or `./clean_up.sh` to remove resources.
 
 ---
 **Maintained by**: [leon-maister](https://github.com/leon-maister)
 
-<small><sub>/home/keyless/k8s/injector</sub></small>
+<sub style="color: gray;">/home/keyless/k8s | CS-EKS</sub>
