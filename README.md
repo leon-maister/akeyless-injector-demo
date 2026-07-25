@@ -51,7 +51,7 @@ The script performs a systematic validation and setup of the environment:
 ### 🚀 Deployment
 Once the configuration is verified, install the injector using the following command:
 ```bash
-helm install injector akeyless/akeyless-secrets-injection --namespace akeyless -f values.yaml
+helm upgrade --install injector akeyless/akeyless-secrets-injection --namespace akeyless -f /home/keyless/vcluster/injector-demo/values.yaml
 ```
 
 ### 🔍 Verify Installation
